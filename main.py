@@ -3,89 +3,56 @@ from spriteSheet import SpriteSheet
 from player import Player
 from ground import Ground
 from obstacles import Obstacle
+from game import Game
 
-pygame.init()
-gameOver=True
-screen_height = 600
-screen_width = 800
-screen = pygame.display.set_mode((screen_width, screen_height))
-clock = pygame.time.Clock()
-pygame.display.set_caption("Pug Dash")
-running = True
-font = pygame.font.Font(None, 36)
-
-ground = Ground(screen_height)
-pug = Player(0, 0.5)
-obstacle= Obstacle(screen_width,ground.y-100,50,50)
-bg_image=pygame.image.load('assets/Summer.jpg')
-bg_image=pygame.transform.scale(bg_image,(screen_width,screen_height))
-last_update=pygame.time.get_ticks()
-animation_cooldown=100
-frame=0
-animation_list=[]
-animation_steps=4
-backgroundScroll=0
-while running:
-    text=f"Score: {pug.score}"
-    text_surface=font.render(text,True,(255,255,255))
-    for event in pygame.event.get():
-        if event.type == pygame.QUIT:
-            running = False
-
-    keys=pygame.key.get_pressed()
-    obstacle.x-=obstacle.speed
-    if keys[pygame.K_SPACE]:
-        if pug.jump_counter==1:
-            pug.velocity=-12
-            pug.jump_counter-=1
-        
-    pug.y += pug.velocity
-    pug.velocity += pug.acceleration
-
-   
-    if pug.y >= (ground.y - pug.sprite_height):
-        pug.y = ground.y - pug.sprite_height
-        pug.velocity = 0
-        pug.jump_counter = 1
-    if (
-        obstacle.x <= (pug.x + pug.sprite_width) and
-        (pug.y + pug.sprite_height) >= ground.y - pug.sprite_height and
-        (pug.x <= obstacle.x + obstacle.width)
-    ):
-        gameOver=True
-    screen.fill((0, 0, 255))
-    current_time=pygame.time.get_ticks()
-    if current_time-last_update>=animation_cooldown:
-        frame+=1
-        last_update=current_time
-        if frame >=animation_steps:
-            frame=0
-    # for x in background:
-    #     screen.blit(x,(0,0))
-
-    screen.blit(bg_image,(backgroundScroll,0))
-    screen.blit(bg_image,(screen_width+backgroundScroll,0))
-    if(backgroundScroll==-screen_width):
-        screen.blit(bg_image,(screen_width+backgroundScroll,0))
-        backgroundScroll=0
-    backgroundScroll-=1
-    # pygame.draw.rect(screen, (0, 250, 0), (0, ground.y, screen_width, screen_height - ground.y))
-    screen.blit(pug.getRunFrame(frame),(pug.x,pug.y-4*pug.sprite_height))
-    # if gameOver:
-    
-    # else:
-    if(not obstacle.x<=-obstacle.width):
-        pygame.draw.rect(screen, (0, 0, 0), obstacle.getRect()) 
+def main():
+    pygame.init()
+    gameStarted=False
+    screen_height = 600
+    screen_width = 800
+    screen = pygame.display.set_mode((screen_width, screen_height))
+    clock = pygame.time.Clock()
+    pygame.display.set_caption("Pug Dash")
+    running = True
+    newGame=Game(screen,screen_width,screen_height)
+    while running:
+        mouse = pygame.mouse.get_pos()
+        for event in pygame.event.get():
+            if event.type == pygame.QUIT:
+                running = False
+            if not gameStarted:
+                if event.type==pygame.MOUSEBUTTONDOWN:
+                    if 325<= mouse[0] <= 470 and 200 <= mouse[1] <= 240:
+                        gameStarted=True
+                    elif 325<= mouse[0] <= 470 and 300 <= mouse[1] <= 340:
+                        running=False
+                    elif 330<= mouse[0] <= 470 and 400 <= mouse[1] <= 440:
+                        running=False
+                
+        if not gameStarted:
+            pygame.draw.rect(newGame.screen,(60,179,113),(0,0,newGame.width,newGame.height))
+            #Title
+            title_font = pygame.font.Font("freesansbold.ttf", 100)
+            title = title_font.render("Pug Dash", True, (255, 255, 255))
+            newGame.screen.blit(title, (180, 50))
             
-    else:
-        pug.score+=1
-        obstacle.x=screen_width
-        obstacle.speed+=1
-    screen.blit(text_surface, (0, 0))
-   
-   
-    pygame.display.flip()
-    clock.tick(60)
+            #Menu Buttons
+            item_font = pygame.font.Font("freesansbold.ttf", 50)
+            item1 = item_font.render("Start", True, (255, 255, 255))
+            newGame.screen.blit(item1, (325, 200))
+            item2 = item_font.render("Store", True, (255, 255, 255))
+            newGame.screen.blit(item2, (325, 300))
+            item3 = item_font.render("Quit", True, (255, 255, 255))
+            newGame.screen.blit(item3, (325, 400))
+            newGame.gameOver=False
+        else:
+            newGame.runGame()
+            if newGame.gameOver:
+                gameStarted=False    
+        pygame.display.flip()
+        clock.tick(60)
+        
 
-pygame.quit()
-
+    pygame.quit()
+if __name__ == "__main__":
+    main()
