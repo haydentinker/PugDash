@@ -44,11 +44,12 @@ def main():
             newGame.screen.blit(item2, (325, 300))
             item3 = item_font.render("Quit", True, (255, 255, 255))
             newGame.screen.blit(item3, (325, 400))
-            newGame.gameOver=False
+            
         else:
             newGame.runGame()
             if newGame.gameOver:
-                gameStarted=False    
+                gameStarted=False
+                newGame.resetGame()
         pygame.display.flip()
         clock.tick(60)
         
