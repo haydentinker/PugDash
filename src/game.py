@@ -1,4 +1,5 @@
 import pygame
+import json
 from player import Player
 from ground import Ground
 from obstacles import Obstacle
@@ -19,16 +20,26 @@ class Game():
         self.screen=screen
         self.animation_steps=4
         self.gameOver=False
-
+        with open('gameInfo.json','r')as file:
+            jsonData=json.load(file)
+            self.highScore=jsonData["HighScore"]
+            self.UnlockedCharacters=jsonData["UnlockedCharacters"]
+   
+    def checkNewHighScore(self):
+        if self.pug.score>self.highScore:
+            with open('gameInfo.json','w') as file:
+                json.dump({'HighScore':self.pug.score,'UnlockedCharacters':self.UnlockedCharacters},file)
+   
     def resetGame(self):
         self.gameOver=False
         self.backgroundScroll=0
         self.pug=Player(0,0.5)
         self.obstacle=Obstacle(self.width,0,100,200,1)
+   
     def runGame(self):
     
         pos=pygame.mouse.get_pos()
-        text=f"Score: {self.pug.score}"
+        text=f"Score: {self.pug.score}  High Score: {self.highScore}"
         text_surface=self.font.render(text,True,(255,255,255))
         keys=pygame.key.get_pressed()
         self.obstacle.x-=self.obstacle.speed
@@ -67,6 +78,7 @@ class Game():
         self.screen.blit(self.pug.getRunFrame(self.frame),(self.pug.x,self.pug.y-4*self.pug.sprite_height))
     
         if self.gameOver:
+            self.checkNewHighScore()
             return
         if(not self.obstacle.x<=-self.obstacle.width):
             self.screen.blit(self.obstacle.treeImage,(self.obstacle.x,420)) 

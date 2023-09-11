@@ -7,53 +7,63 @@ from game import Game
 
 def main():
     pygame.init()
-    gameStarted=False
+    gameStarted = False
     screen_height = 600
     screen_width = 800
     screen = pygame.display.set_mode((screen_width, screen_height))
     clock = pygame.time.Clock()
     pygame.display.set_caption("Pug Dash")
     running = True
-    newGame=Game(screen,screen_width,screen_height)
+    newGame = Game(screen, screen_width, screen_height)
+    
+    item_font = pygame.font.Font("freesansbold.ttf", 50)
+    start_text = "Start"
+    store_text = "Store"
+    quit_text = "Quit"
+    
     while running:
         mouse = pygame.mouse.get_pos()
         for event in pygame.event.get():
             if event.type == pygame.QUIT:
                 running = False
             if not gameStarted:
-                if event.type==pygame.MOUSEBUTTONDOWN:
-                    if 325<= mouse[0] <= 470 and 200 <= mouse[1] <= 240:
-                        gameStarted=True
-                    elif 325<= mouse[0] <= 470 and 300 <= mouse[1] <= 340:
-                        running=False
-                    elif 330<= mouse[0] <= 470 and 400 <= mouse[1] <= 440:
-                        running=False
-                
+                if event.type == pygame.MOUSEBUTTONDOWN:
+                    if startBtn.collidepoint(pygame.mouse.get_pos()):
+                        gameStarted = True
+                    elif storeBtn.collidepoint(pygame.mouse.get_pos()):
+                        running = False
+                    elif quitBtn.collidepoint(pygame.mouse.get_pos()):
+                        running = False
+
         if not gameStarted:
-            pygame.draw.rect(newGame.screen,(60,179,113),(0,0,newGame.width,newGame.height))
-            #Title
+            pygame.draw.rect(newGame.screen, (60, 179, 113), (0, 0, newGame.width, newGame.height))
+            # Title
             title_font = pygame.font.Font("freesansbold.ttf", 100)
             title = title_font.render("Pug Dash", True, (255, 255, 255))
             newGame.screen.blit(title, (180, 50))
-            
-            #Menu Buttons
-            item_font = pygame.font.Font("freesansbold.ttf", 50)
-            item1 = item_font.render("Start", True, (255, 255, 255))
+
+            # Menu Buttons
+            item1 = item_font.render(start_text, True, (255, 255, 255))
             newGame.screen.blit(item1, (325, 200))
-            item2 = item_font.render("Store", True, (255, 255, 255))
+            item2 = item_font.render(store_text, True, (255, 255, 255))
             newGame.screen.blit(item2, (325, 300))
-            item3 = item_font.render("Quit", True, (255, 255, 255))
+            item3 = item_font.render(quit_text, True, (255, 255, 255))
             newGame.screen.blit(item3, (325, 400))
-            
+
+            startBtn = pygame.Rect(325, 200, item1.get_width(), item1.get_height())
+            storeBtn = pygame.Rect(325, 300, item2.get_width(), item2.get_height())
+            quitBtn = pygame.Rect(325, 400, item3.get_width(), item3.get_height())
+
         else:
             newGame.runGame()
             if newGame.gameOver:
-                gameStarted=False
+                gameStarted = False
                 newGame.resetGame()
+        
         pygame.display.flip()
         clock.tick(60)
-        
 
     pygame.quit()
+
 if __name__ == "__main__":
     main()
