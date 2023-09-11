@@ -48,7 +48,6 @@ class Game():
         self.obstacle.rect.x = self.obstacle.x  
         self.obstacle.rect.y = 440
         if self.obstacle.rect.colliderect(self.pug.rect):
-            print(self.frame)
             self.gameOver=True
         self.screen.fill((0, 0, 255))
         self.screen.fill((0, 0, 255))
