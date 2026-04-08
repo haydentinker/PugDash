@@ -64,6 +64,8 @@ async def main():
         for event in pygame.event.get():
             if event.type == pygame.QUIT:
                 running = False
+            if gameStarted and event.type == pygame.FINGERDOWN:
+                newGame.touch_jump = True
             if not gameStarted and not characterSelect and event.type == pygame.MOUSEBUTTONDOWN:
                 pos = pygame.mouse.get_pos()
                 if startBtn.collidepoint(pos):

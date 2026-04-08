@@ -58,6 +58,7 @@ class Game():
         self.screen = screen
         self.animation_steps = 4
         self.gameOver = False
+        self.touch_jump = False
    
     def _load_game_info(self):
         jsonData = None
@@ -127,9 +128,10 @@ class Game():
         self.screen.blit(text_surface, (0, 0))
         keys = pygame.key.get_pressed()
         self.obstacle.x -= self.obstacle.speed
-        if keys[pygame.K_SPACE] and self.pug.jump_counter == 1:
+        if (keys[pygame.K_SPACE] or self.touch_jump) and self.pug.jump_counter == 1:
             self.pug.velocity = self.pug.jump_strength
             self.pug.jump_counter = 0
+        self.touch_jump = False
         self.pug.y += self.pug.velocity
         self.pug.velocity += self.pug.acceleration
         if self.pug.y >= self.ground.y - self.pug.surface_rect.height - self.pug.surface_rect.y - self.pug.ground_offset:
