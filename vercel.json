@@ -1,6 +1,6 @@
 {
   "framework": null,
   "installCommand": "pip3 install pygbag --break-system-packages",
-  "buildCommand": "python3 -m pygbag --archive src/main.py",
+  "buildCommand": "bash build.sh",
   "outputDirectory": "src/build/web"
 }
