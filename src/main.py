@@ -34,8 +34,8 @@ async def main():
     running = True
     newGame = Game(screen, screen_width, screen_height)
     
-    item_font = pygame.font.SysFont("freesansbold", 50)
-    title_font = pygame.font.SysFont("freesansbold", 100)
+    item_font = pygame.font.Font(None, 50)
+    title_font = pygame.font.Font(None, 100)
     start_text = "Start"
     store_text = "Character Select"
     quit_text = "Quit"
@@ -113,7 +113,7 @@ async def main():
             screen.blit(title, (100, title_y))
             
             # Subtitle
-            subtitle_font = pygame.font.SysFont("freesansbold", 30)
+            subtitle_font = pygame.font.Font(None, 30)
             subtitle = subtitle_font.render("An exciting adventure awaits!", True, (0, 0, 0))
             subtitle_bg = pygame.Surface((subtitle.get_width() + 20, subtitle.get_height() + 10))
             subtitle_bg.fill((255, 255, 255))

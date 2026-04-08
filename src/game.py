@@ -49,7 +49,7 @@ class Game():
         self.obstacle.y = self.ground.y - self.obstacle.surface_rect.height - self.obstacle.surface_rect.y - self.pug.ground_offset
         self.obstacle.rect.topleft = (self.obstacle.x + self.obstacle.surface_rect.x, self.obstacle.y + self.obstacle.surface_rect.y)
         self.backgroundScroll = 0
-        self.font = pygame.font.SysFont(None, 36)
+        self.font = pygame.font.Font(None, 36)
         self.screen = screen
         self.animation_steps = 4
         self.gameOver = False
