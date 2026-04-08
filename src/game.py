@@ -5,13 +5,16 @@ from player import Player
 from ground import Ground
 from obstacles import Obstacle
 
-try:
-    import platform
-    _localStorage = platform.window.localStorage
-    _HAS_BROWSER = True
-except Exception:
-    _localStorage = None
-    _HAS_BROWSER = False
+import sys
+_HAS_BROWSER = sys.platform == 'emscripten'
+_ALL_CHARACTERS = ["Base", "Pug2", "Pug3", "Pug4", "Pug5", "Pug6", "Pug7", "Pug8", "Pug9", "Pug10", "Pug11", "Pug12"]
+
+def _get_localStorage():
+    try:
+        import platform
+        return platform.window.localStorage
+    except Exception:
+        return None
 
 BASE_DIR = os.path.dirname(os.path.abspath(__file__))
 
@@ -60,12 +63,14 @@ class Game():
         jsonData = None
         if _HAS_BROWSER:
             try:
-                item = _localStorage.getItem('pugdash_gameInfo')
-                if item is not None:
-                    jsonData = json.loads(str(item))
+                ls = _get_localStorage()
+                if ls is not None:
+                    item = ls.getItem('pugdash_gameInfo')
+                    if item is not None:
+                        jsonData = json.loads(str(item))
             except Exception:
                 pass
-        if jsonData is None:
+        else:
             try:
                 with open(self.gameInfo_path, 'r') as file:
                     jsonData = json.load(file)
@@ -73,11 +78,11 @@ class Game():
                 pass
         if jsonData:
             self.highScore = jsonData.get('HighScore', 0)
-            self.UnlockedCharacters = jsonData.get('UnlockedCharacters', [])
+            self.UnlockedCharacters = jsonData.get('UnlockedCharacters', _ALL_CHARACTERS) or _ALL_CHARACTERS
             self.selected_character = jsonData.get('SelectedCharacter', 'Base')
         else:
             self.highScore = 0
-            self.UnlockedCharacters = []
+            self.UnlockedCharacters = _ALL_CHARACTERS
             self.selected_character = 'Base'
             self._save_game_info()
 
@@ -85,14 +90,17 @@ class Game():
         data = {'HighScore': self.highScore, 'UnlockedCharacters': self.UnlockedCharacters, 'SelectedCharacter': self.selected_character}
         if _HAS_BROWSER:
             try:
-                _localStorage.setItem('pugdash_gameInfo', json.dumps(data))
+                ls = _get_localStorage()
+                if ls is not None:
+                    ls.setItem('pugdash_gameInfo', json.dumps(data))
             except Exception:
                 pass
-        try:
-            with open(self.gameInfo_path, 'w') as file:
-                json.dump(data, file)
-        except Exception:
-            pass
+        else:
+            try:
+                with open(self.gameInfo_path, 'w') as file:
+                    json.dump(data, file)
+            except Exception:
+                pass
    
     def checkNewHighScore(self):
         if self.pug.score > self.highScore:
