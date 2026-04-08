@@ -7,6 +7,21 @@ from obstacles import Obstacle
 
 BASE_DIR = os.path.dirname(os.path.abspath(__file__))
 
+character_data = {
+    "Base": (0, 0),
+    "Speedy": (0, 1),
+    "Jumpy": (0, 2),
+    "Pug4": (0, 3),
+    "Pug5": (1, 0),
+    "Pug6": (1, 1),
+    "Pug7": (1, 2),
+    "Pug8": (1, 3),
+    "Pug9": (2, 0),
+    "Pug10": (2, 1),
+    "Pug11": (2, 2),
+    "Pug12": (2, 3),
+}
+
 class Game():
     def __init__(self, screen, width, height):
         bg_image_path = os.path.join(BASE_DIR, 'assets', 'Summer.jpg')
@@ -17,8 +32,11 @@ class Game():
         self.last_update = pygame.time.get_ticks()
         self.animation_cooldown = 100
         self.frame = 0
+        self.gameInfo_path = os.path.join(BASE_DIR, 'gameInfo.json')
+        self._load_game_info()
+        self.selected_col, self.selected_row = character_data.get(self.selected_character, (0, 0))
         self.ground = Ground(height)
-        self.pug = Player(0, 0.6)
+        self.pug = Player(0, 0.6, self.selected_col, self.selected_row)
         self.pug.y = self.ground.y - self.pug.surface_rect.height - self.pug.surface_rect.y - self.pug.ground_offset
         self.pug.rect.topleft = (self.pug.x + self.pug.surface_rect.x, self.pug.y + self.pug.surface_rect.y)
         self.obstacle = Obstacle(self.width, 0, 125, 150, 1)
@@ -29,10 +47,6 @@ class Game():
         self.screen = screen
         self.animation_steps = 4
         self.gameOver = False
-        self.highScore = 0
-        self.UnlockedCharacters = []
-        self.gameInfo_path = os.path.join(BASE_DIR, 'gameInfo.json')
-        self._load_game_info()
    
     def _load_game_info(self):
         try:
@@ -40,14 +54,16 @@ class Game():
                 jsonData = json.load(file)
                 self.highScore = jsonData.get('HighScore', 0)
                 self.UnlockedCharacters = jsonData.get('UnlockedCharacters', [])
+                self.selected_character = jsonData.get('SelectedCharacter', 'Base')
         except (FileNotFoundError, json.JSONDecodeError):
             self.highScore = 0
             self.UnlockedCharacters = []
+            self.selected_character = 'Base'
             self._save_game_info()
    
     def _save_game_info(self):
         with open(self.gameInfo_path, 'w') as file:
-            json.dump({'HighScore': self.highScore, 'UnlockedCharacters': self.UnlockedCharacters}, file)
+            json.dump({'HighScore': self.highScore, 'UnlockedCharacters': self.UnlockedCharacters, 'SelectedCharacter': self.selected_character}, file)
    
     def checkNewHighScore(self):
         if self.pug.score > self.highScore:
@@ -57,7 +73,7 @@ class Game():
     def resetGame(self):
         self.gameOver = False
         self.backgroundScroll = 0
-        self.pug = Player(0, 0.6)
+        self.pug = Player(0, 0.6, self.selected_col, self.selected_row)
         self.pug.y = self.ground.y - self.pug.surface_rect.height - self.pug.surface_rect.y - self.pug.ground_offset
         self.pug.rect.topleft = (self.pug.x + self.pug.surface_rect.x, self.pug.y + self.pug.surface_rect.y)
         self.obstacle = Obstacle(self.width, 0, 125, 150, 1)
@@ -66,7 +82,12 @@ class Game():
    
     def runGame(self):
         text = f"Score: {self.pug.score}  High Score: {self.highScore}"
-        text_surface = self.font.render(text, True, (255, 255, 255))
+        text_surface = self.font.render(text, True, (0, 0, 0))
+        text_bg = pygame.Surface((text_surface.get_width() + 10, text_surface.get_height() + 5))
+        text_bg.fill((255, 255, 255))
+        text_bg.set_alpha(180)
+        self.screen.blit(text_bg, (-5, -2))
+        self.screen.blit(text_surface, (0, 0))
         keys = pygame.key.get_pressed()
         self.obstacle.x -= self.obstacle.speed
         if keys[pygame.K_SPACE] and self.pug.jump_counter == 1:
