@@ -6,10 +6,12 @@ from ground import Ground
 from obstacles import Obstacle
 
 try:
-    import js
-    _HAS_JS = True
-except ImportError:
-    _HAS_JS = False
+    import platform
+    _localStorage = platform.window.localStorage
+    _HAS_BROWSER = True
+except Exception:
+    _localStorage = None
+    _HAS_BROWSER = False
 
 BASE_DIR = os.path.dirname(os.path.abspath(__file__))
 
@@ -56,11 +58,11 @@ class Game():
    
     def _load_game_info(self):
         jsonData = None
-        if _HAS_JS:
+        if _HAS_BROWSER:
             try:
-                item = js.localStorage.getItem('pugdash_gameInfo')
-                if item:
-                    jsonData = json.loads(item)
+                item = _localStorage.getItem('pugdash_gameInfo')
+                if item is not None:
+                    jsonData = json.loads(str(item))
             except Exception:
                 pass
         if jsonData is None:
@@ -81,9 +83,9 @@ class Game():
 
     def _save_game_info(self):
         data = {'HighScore': self.highScore, 'UnlockedCharacters': self.UnlockedCharacters, 'SelectedCharacter': self.selected_character}
-        if _HAS_JS:
+        if _HAS_BROWSER:
             try:
-                js.localStorage.setItem('pugdash_gameInfo', json.dumps(data))
+                _localStorage.setItem('pugdash_gameInfo', json.dumps(data))
             except Exception:
                 pass
         try:
