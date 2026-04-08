@@ -5,6 +5,12 @@ from player import Player
 from ground import Ground
 from obstacles import Obstacle
 
+try:
+    import js
+    _HAS_JS = True
+except ImportError:
+    _HAS_JS = False
+
 BASE_DIR = os.path.dirname(os.path.abspath(__file__))
 
 character_data = {
@@ -49,21 +55,42 @@ class Game():
         self.gameOver = False
    
     def _load_game_info(self):
-        try:
-            with open(self.gameInfo_path, 'r') as file:
-                jsonData = json.load(file)
-                self.highScore = jsonData.get('HighScore', 0)
-                self.UnlockedCharacters = jsonData.get('UnlockedCharacters', [])
-                self.selected_character = jsonData.get('SelectedCharacter', 'Base')
-        except (FileNotFoundError, json.JSONDecodeError):
+        jsonData = None
+        if _HAS_JS:
+            try:
+                item = js.localStorage.getItem('pugdash_gameInfo')
+                if item:
+                    jsonData = json.loads(item)
+            except Exception:
+                pass
+        if jsonData is None:
+            try:
+                with open(self.gameInfo_path, 'r') as file:
+                    jsonData = json.load(file)
+            except (FileNotFoundError, json.JSONDecodeError):
+                pass
+        if jsonData:
+            self.highScore = jsonData.get('HighScore', 0)
+            self.UnlockedCharacters = jsonData.get('UnlockedCharacters', [])
+            self.selected_character = jsonData.get('SelectedCharacter', 'Base')
+        else:
             self.highScore = 0
             self.UnlockedCharacters = []
             self.selected_character = 'Base'
             self._save_game_info()
-   
+
     def _save_game_info(self):
-        with open(self.gameInfo_path, 'w') as file:
-            json.dump({'HighScore': self.highScore, 'UnlockedCharacters': self.UnlockedCharacters, 'SelectedCharacter': self.selected_character}, file)
+        data = {'HighScore': self.highScore, 'UnlockedCharacters': self.UnlockedCharacters, 'SelectedCharacter': self.selected_character}
+        if _HAS_JS:
+            try:
+                js.localStorage.setItem('pugdash_gameInfo', json.dumps(data))
+            except Exception:
+                pass
+        try:
+            with open(self.gameInfo_path, 'w') as file:
+                json.dump(data, file)
+        except Exception:
+            pass
    
     def checkNewHighScore(self):
         if self.pug.score > self.highScore:

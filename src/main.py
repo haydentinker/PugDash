@@ -1,3 +1,4 @@
+import asyncio
 import pygame
 import os
 import math
@@ -21,7 +22,7 @@ characters = [
     {"name": "Pug12", "col": 2, "row": 3},
 ]
 
-def main():
+async def main():
     pygame.init()
     gameStarted = False
     characterSelect = False
@@ -215,9 +216,9 @@ def main():
                 newGame.resetGame()
         
         pygame.display.flip()
+        await asyncio.sleep(0)
         clock.tick(60)
 
     pygame.quit()
 
-if __name__ == "__main__":
-    main()
+asyncio.run(main())
